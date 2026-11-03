@@ -1,10 +1,13 @@
 import pg from 'pg';
 
-// Render internal URL: no SSL needed. shortcut: an external Render URL needs `ssl: { rejectUnauthorized: false }`.
+// Render's internal URL needs no SSL; the external one (*.render.com) requires it.
 let pool = null;
 
 export async function getDatabase() {
-  if (!pool) pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  if (!pool) pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL?.includes('.render.com') ? { rejectUnauthorized: false } : false,
+  });
   return pool;
 }
 
